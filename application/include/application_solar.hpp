@@ -4,6 +4,8 @@
 #include "application.hpp"
 #include "model.hpp"
 #include "structs.hpp"
+#include "planet.hpp"
+
 
 // gpu representation of model
 class ApplicationSolar : public Application {
@@ -19,6 +21,11 @@ class ApplicationSolar : public Application {
   void updateProjection();
   // react to key input
   void keyCallback(int key, int scancode, int action, int mods);
+  //handle delta mouse movement input
+  void mouseCallback(double pos_x, double pos_y);
+
+  void upload_planet_transforms(planet const& planet) const;
+
   // draw all objects
   void render() const;
 
