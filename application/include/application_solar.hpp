@@ -33,6 +33,9 @@ class ApplicationSolar : public Application {
   void initializeShaderPrograms();
   void initializeGeometry();
   void updateView();
+  
+  std::vector<float> stars;
+  model_object stars_object;
 
   // cpu representation of model
   model_object planet_object;

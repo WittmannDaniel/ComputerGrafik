@@ -5,13 +5,15 @@ struct planet {
     float distance;
     float speed;
     float size;
+    bool is_moon;
     
 
-    planet(std::string n, float d, float speed, float s):
+    planet(std::string n, float d, float speed, float s, bool x):
         name{n},
         distance{d},
         speed{speed},
-        size{s}
+        size{s},
+        is_moon{x}
         {}
 
 };
