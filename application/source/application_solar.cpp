@@ -28,16 +28,16 @@ using namespace gl;
 
 
 // initialize all planets
-planet sun{ "sun"    , 0.0f , 0.0f         , 0.7f, false };
-planet mercury{ "mercury", 1.0f , 365 / 88.0f    , 0.05f, false };
-planet venus{ "venus"  , 2.0f , 365 / 225.0f   , 0.2f, false };
-planet earth{ "earth"  , 3.0f , 1.0f         , 0.15f, false };
-planet mars{ "mars"   , 3.5f , 365 / 687.0f   , 0.1f, false };
-planet jupiter{ "jupiter", 4.0f , 365 / 4329.f   , 0.35f, false };
-planet saturn{ "saturn" , 5.0f , 365 / 1751.0f  , 0.2f, false };
-planet uranus{ "uranus" , 6.0f , 365 / 30664.0f , 0.2f, false };
-planet neptune{ "neptune", 6.5f , 365 / 60148.0f , 0.15f, false };
-planet moon{ "moon"   , 0.3f , 1.0f        ,0.05f, true };
+planet sun{ "sun"    , 0.0f , 0.0f         , 0.7f, false, 1.0f, 1.0f, 1.0f };
+planet mercury{ "mercury", 1.0f , 365 / 88.0f    , 0.05f, false, 0.5f, 0.5f, 0.5f };
+planet venus{ "venus"  , 2.0f , 365 / 225.0f, 0.2f, false, 0.5f, 0.5f, 1.0f };
+planet earth{ "earth"  , 3.0f , 1.0f , 0.15f, false, 0.0f, 0.0f, 1.0f };
+planet mars{ "mars"   , 3.5f , 365 / 687.0f   , 0.1f, false, 1.0f, 0.0f, 0.0f };
+planet jupiter{ "jupiter", 4.0f , 365 / 4329.f, 0.35f, false, 0.5f, 0.5f, 0.7f };
+planet saturn{ "saturn" , 5.0f , 365 / 1751.0f, 0.2f, false, 0.7f, 0.7f, 0.4f };
+planet uranus{ "uranus" , 6.0f , 365 / 30664.0f , 0.2f, false, 0.5f, 0.5f, 0.7f };
+planet neptune{ "neptune", 6.5f , 365 / 60148.0f , 0.15f, false, 0.5f, 0.5f, 1.0f };
+planet moon{ "moon"   , 0.3f , 1.0f ,0.05f, true, 0.5f, 0.5f, 0.5f };
 
 std::vector<planet>planets = { sun, mercury, venus, earth, mars, jupiter, saturn, uranus, neptune, moon };
 
@@ -85,6 +85,12 @@ void ApplicationSolar::upload_planet_transforms(planet const& planet) const {
 	glm::fmat4 normal_matrix = glm::inverseTranspose(glm::inverse(m_view_transform) * model_matrix);
 	glUniformMatrix4fv(m_shaders.at("planet").u_locs.at("NormalMatrix"),
 		1, GL_FALSE, glm::value_ptr(normal_matrix));
+
+	//upload planet uniform
+	glUniform3f(glGetUniformLocation(m_shaders.at("planet").handle, "planet_rgb"),
+		planet.rgb_color[0],
+		planet.rgb_color[1],
+		planet.rgb_color[2]);
 };
 
 
@@ -124,6 +130,7 @@ void ApplicationSolar::updateView() {
   // upload matrix to gpu
   glUniformMatrix4fv(m_shaders.at("planet").u_locs.at("ViewMatrix"),
                      1, GL_FALSE, glm::value_ptr(view_matrix));
+
 
   // stars shader
   glUseProgram(m_shaders.at("star").handle);
