@@ -10,13 +10,13 @@ out vec4 out_Color;
 
 
 	// returns intensity of reflected ambient lighting
-vec3 ambientLighting(in float u_matAmbientReflectance, in float u_lightAmbientIntensity)
+float ambientLighting(in float u_matAmbientReflectance, in float u_lightAmbientIntensity)
 {
    return float(u_matAmbientReflectance * u_lightAmbientIntensity);
 }
 
 // returns intensity of diffuse reflection
-vec3 diffuseLighting(in vec4 N, in vec3 L, in float u_matDiffuseReflectance, in float u_lightDiffuseIntensity)
+float diffuseLighting(in vec4 N, in vec3 L, in float u_matDiffuseReflectance, in float u_lightDiffuseIntensity)
 {
    // calculation as for Lambertian reflection
    float diffuseTerm = clamp(dot(N.xyz, L), 0, 1) ;
@@ -24,7 +24,7 @@ vec3 diffuseLighting(in vec4 N, in vec3 L, in float u_matDiffuseReflectance, in 
 }
 
 // returns intensity of specular reflection
-vec3 specularLighting(in vec4 N, in vec3 L, in vec3 V, in float u_matSpecularReflectance, in float u_lightSpecularIntensity, in float u_matShininess)
+float specularLighting(in vec4 N, in vec3 L, in vec3 V, in float u_matSpecularReflectance, in float u_lightSpecularIntensity, in float u_matShininess)
 {
    float specularTerm = 0;
 
@@ -41,8 +41,8 @@ vec3 specularLighting(in vec4 N, in vec3 L, in vec3 V, in float u_matSpecularRef
 
 void main(void)
 {
-	float u_lightAmbientIntensitys = 0.6;
-	float u_lightDiffuseIntensitys = 0.5;
+	float u_lightAmbientIntensitys = 0.2;
+	float u_lightDiffuseIntensitys = 1;
 	float u_lightSpecularIntensitys = 1;
 
 // parameters of the material and possible values
