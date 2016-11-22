@@ -3,6 +3,7 @@
 
 #include "application_solar.hpp"
 #include "launcher.hpp"
+#include "texture_loader.hpp"
 
 
 #include "utils.hpp"
@@ -24,12 +25,16 @@ using namespace gl;
 #include <iostream>
 #include <random>
 #include <cstdlib>
+#include <string>
+
+std::vector<texture_object> texture_objects;
 
 
+// texture_loader::file(m_resource_path + "textures/sunmap.png")
 
-// initialize all planets
-planet sun{ "sun"    , 0.0f , 0.0f         , 0.7f, false, 1.0f, 1.0f, 1.0f };
-planet mercury{ "mercury", 1.0f , 365 / 88.0f    , 0.05f, false, 0.5f, 0.5f, 0.5f };
+/*// initialize all planets
+planet sun{ "sun"    , 0.0f, 0.0f, 0.7f, false, texture_loader::file(m_resource_path + "texture/sunmap.png" ) };
+planet mercury{ "mercury", 1.0f , 365 / 88.0f, 0.05f, false, 0.5f, 0.5f, 0.5f };
 planet venus{ "venus"  , 2.0f , 365 / 225.0f, 0.2f, false, 0.5f, 0.5f, 1.0f };
 planet earth{ "earth"  , 3.0f , 1.0f , 0.15f, false, 0.0f, 0.0f, 1.0f };
 planet mars{ "mars"   , 3.5f , 365 / 687.0f   , 0.1f, false, 1.0f, 0.0f, 0.0f };
@@ -37,9 +42,10 @@ planet jupiter{ "jupiter", 4.0f , 365 / 4329.f, 0.35f, false, 0.5f, 0.5f, 0.7f }
 planet saturn{ "saturn" , 5.0f , 365 / 1751.0f, 0.2f, false, 0.7f, 0.7f, 0.4f };
 planet uranus{ "uranus" , 6.0f , 365 / 30664.0f , 0.2f, false, 0.5f, 0.5f, 0.7f };
 planet neptune{ "neptune", 6.5f , 365 / 60148.0f , 0.15f, false, 0.5f, 0.5f, 1.0f };
-planet moon{ "moon"   , 0.3f , 1.0f ,0.05f, true, 0.5f, 0.5f, 0.5f };
+planet moon{ "moon"   , 0.3f , 1.0f ,0.05f, true, 0.5f, 0.5f, 0.5f };*/
 
-std::vector<planet>planets = { sun, mercury, venus, earth, mars, jupiter, saturn, uranus, neptune, moon };
+std::vector<planet>planets; 
+std::vector<texture_object> textures;
 
 
 ApplicationSolar::ApplicationSolar(std::string const& resource_path)
@@ -47,17 +53,38 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
  ,planet_object{}
  ,stars{}
  ,stars_object{}
+ 
 
 {
+	// initialize all planets
+	planet sun{ "sun"    , 0.0f, 0.0f, 0.7f, false, texture_loader::file(m_resource_path + "textures/sunmap.png") };
+	planet mercury{ "mercury", 1.0f , 365 / 88.0f, 0.05f, false, texture_loader::file(m_resource_path + "textures/mercurymap.png") };
+	planet venus{ "venus"  , 2.0f , 365 / 225.0f, 0.2f, false, texture_loader::file(m_resource_path + "textures/venusmap.png") };
+	planet earth{ "earth"  , 3.0f , 1.0f , 0.15f, false, texture_loader::file(m_resource_path + "textures/earthmap.png") };
+	planet mars{ "mars"   , 3.5f , 365 / 687.0f   , 0.1f, false, texture_loader::file(m_resource_path + "textures/marsmap.png") };
+	planet jupiter{ "jupiter", 4.0f , 365 / 4329.f, 0.35f, false, texture_loader::file(m_resource_path + "textures/jupitermap.png") };
+	planet saturn{ "saturn" , 5.0f , 365 / 1751.0f, 0.2f, false, texture_loader::file(m_resource_path + "textures/saturnmap.png") };
+	planet uranus{ "uranus" , 6.0f , 365 / 30664.0f , 0.2f, false, texture_loader::file(m_resource_path + "textures/uranusmap.png") };
+	planet neptune{ "neptune", 6.5f , 365 / 60148.0f , 0.15f, false, texture_loader::file(m_resource_path + "textures/neptunemap.png") };
+	planet moon{ "moon"   , 0.3f , 1.0f ,0.05f, true, texture_loader::file(m_resource_path + "textures/moonmap.png") };
+
+	planets = { sun, mercury, venus, earth, mars, jupiter, saturn, uranus, neptune, moon };
+
   initializeGeometry();
   initializeShaderPrograms();
+  initializeTextures();
 }
 
-void ApplicationSolar::upload_planet_transforms(planet const& planet) const {
+void ApplicationSolar::upload_planet_transforms(planet const& planet, texture_object const& tex_object) const {
 	// Planet -- std::string name; float distance; float speed; float size; bool is_moon;
 
 	glm::fmat4 model_matrix = glm::fmat4{};
 
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(tex_object.target, tex_object.handle);
+
+	glUniform1i(glGetUniformLocation(m_shaders.at("planet").handle, "ColorTex"), tex_object.handle);
+	
 	if (planet.is_moon == true)
 	{
 		// translation for moon to fly aroud earth -- planets[3] -> earth
@@ -110,15 +137,19 @@ void ApplicationSolar::render() const {
 
 	// for loop over container of planets
 	glUseProgram(m_shaders.at("planet").handle);
+
+	std::vector<texture_object>::iterator j = textures.begin();
 	for (std::vector<planet>::iterator i = planets.begin(); i != planets.end(); ++i)
 	{
-			upload_planet_transforms(*i);
+			upload_planet_transforms(*i, *j);
 
 			// bind the VAO to draw
 			glBindVertexArray(planet_object.vertex_AO);
 
 			// draw bound vertex array using bound shader
 			glDrawElements(planet_object.draw_mode, planet_object.num_elements, model::INDEX.type, NULL);
+
+			++j;
 	}
 
 
@@ -204,7 +235,7 @@ void ApplicationSolar::initializeShaderPrograms() {
 
 // load models
 void ApplicationSolar::initializeGeometry() {
-  model planet_model = model_loader::obj(m_resource_path + "models/sphere.obj", model::NORMAL);
+  model planet_model = model_loader::obj(m_resource_path + "models/sphere.obj", model::NORMAL | model::TEXCOORD);
 
   // generate vertex array object
   glGenVertexArrays(1, &planet_object.vertex_AO);
@@ -226,8 +257,11 @@ void ApplicationSolar::initializeGeometry() {
   glEnableVertexAttribArray(1);
   // second attribute is 3 floats with no offset & stride
   glVertexAttribPointer(1, model::NORMAL.components, model::NORMAL.type, GL_FALSE, planet_model.vertex_bytes, planet_model.offsets[model::NORMAL]);
-
-   // generate generic buffer
+  
+  glEnableVertexAttribArray(2);
+  glVertexAttribPointer(2, model::TEXCOORD.components, model::TEXCOORD.type, GL_FALSE, planet_model.vertex_bytes, planet_model.offsets[model::TEXCOORD]);
+  
+  // generate generic buffer
   glGenBuffers(1, &planet_object.element_BO);
   // bind this as an vertex array buffer containing all attributes
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, planet_object.element_BO);
@@ -239,6 +273,7 @@ void ApplicationSolar::initializeGeometry() {
   // transfer number of indices to model object 
   planet_object.num_elements = GLsizei(planet_model.indices.size());
 
+  initializeTextures();
 
   //initialization stars
   
@@ -277,6 +312,16 @@ ApplicationSolar::~ApplicationSolar() {
   glDeleteBuffers(1, &stars_object.element_BO);
   glDeleteVertexArrays(1, &stars_object.vertex_AO);
 }
+
+
+void ApplicationSolar::initializeTextures() {
+	
+	for (int i = 0; i < planets.size(); i++)
+	{
+		textures.push_back(utils::create_texture_object(planets[i].texture));
+	} 
+}
+
 
 // exe entry point
 int main(int argc, char* argv[]) {

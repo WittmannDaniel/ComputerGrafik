@@ -6,6 +6,10 @@ in	vec3 color_planet;
 in vec3	pass_toLight;
 in vec3	pass_toCamera;
 
+in vec2 pass_Texcoord;
+
+uniform sampler2D u_diffuseTexture;;
+
 out vec4 out_Color;
 
 
@@ -41,15 +45,15 @@ float specularLighting(in vec4 N, in vec3 L, in vec3 V, in float u_matSpecularRe
 
 void main(void)
 {
-	float u_lightAmbientIntensitys = 0.2;
+	float u_lightAmbientIntensitys = 1;
 	float u_lightDiffuseIntensitys = 1;
 	float u_lightSpecularIntensitys = 1;
 
 // parameters of the material and possible values
-	float u_matAmbientReflectances = 1;
-	float u_matDiffuseReflectances = 1;
+	float u_matAmbientReflectances = 01;
+	float u_matDiffuseReflectances = 0.4;
 	float u_matSpecularReflectances = 1;
-	float u_matShininess = 64;
+	float u_matShininess = 100;
 
    // normalize vectors after interpolation
    vec3 L = normalize(pass_toLight);
@@ -62,11 +66,11 @@ void main(void)
    float Ispe = specularLighting(N, L, V, u_matSpecularReflectances, u_lightSpecularIntensitys, u_matShininess);
 
    // diffuse color of the object from texture
-   //vec3 diffuseColor = texture(u_diffuseTexture, o_texcoords).rgb;
+   vec3 diffuseColor = texture(u_diffuseTexture, pass_Texcoord).xyz;
 
    // combination of all components and diffuse color of the object
    //resultingColor.xyz = diffuseColor * (Iamb + Idif + Ispe);
    //resultingColor.a = 1;
-   out_Color.xyz = color_planet * (Iamb + Idif + Ispe);
+   out_Color.xyz = /*color_planet*/ diffuseColor * (Iamb + Idif + Ispe);
    out_Color.a = 1;
 }

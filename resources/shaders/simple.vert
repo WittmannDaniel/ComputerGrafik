@@ -3,6 +3,7 @@
 // vertex attributes of VAO
 layout(location = 0) in vec3 in_Position;
 layout(location = 1) in vec3 in_Normal;
+layout(location = 2) in vec2 in_Texcoord;
 
 //Matrix Uniforms as specified with glUniformMatrix4fv
 uniform mat4 ModelMatrix;
@@ -20,6 +21,8 @@ out vec3 color_planet;
 //out vec3 pass_normal;
 out vec3 pass_toLight;
 out vec3 pass_toCamera;
+
+out vec2 pass_Texcoord;
 
 void main(void)
 {
@@ -40,5 +43,7 @@ void main(void)
 
    // direction to camera
    pass_toCamera	= normalize(camera_position - worldPosition.xyz);
+
+   pass_Texcoord = in_Texcoord;
 
 }
