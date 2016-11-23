@@ -57,6 +57,7 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
 
 {
 	// initialize all planets
+	planet skybox{ "skybox"    , 0.0f, 0.0f, 50.0f, false, texture_loader::file(m_resource_path + "textures/skybox.png") };
 	planet sun{ "sun"    , 0.0f, 0.0f, 0.7f, false, texture_loader::file(m_resource_path + "textures/sunmap.png") };
 	planet mercury{ "mercury", 1.0f , 365 / 88.0f, 0.05f, false, texture_loader::file(m_resource_path + "textures/mercurymap.png") };
 	planet venus{ "venus"  , 2.0f , 365 / 225.0f, 0.2f, false, texture_loader::file(m_resource_path + "textures/venusmap.png") };
@@ -68,7 +69,7 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
 	planet neptune{ "neptune", 6.5f , 365 / 60148.0f , 0.15f, false, texture_loader::file(m_resource_path + "textures/neptunemap.png") };
 	planet moon{ "moon"   , 0.3f , 1.0f ,0.05f, true, texture_loader::file(m_resource_path + "textures/moonmap.png") };
 
-	planets = { sun, mercury, venus, earth, mars, jupiter, saturn, uranus, neptune, moon };
+	planets = { skybox, sun, mercury, venus, earth, mars, jupiter, saturn, uranus, neptune, moon };
 
   initializeGeometry();
   initializeShaderPrograms();
