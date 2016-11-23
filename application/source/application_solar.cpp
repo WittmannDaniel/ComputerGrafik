@@ -69,7 +69,7 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
 	planet neptune{ "neptune", 6.5f , 365 / 60148.0f , 0.15f, false, texture_loader::file(m_resource_path + "textures/neptunemap.png") };
 	planet moon{ "moon"   , 0.3f , 1.0f ,0.05f, true, texture_loader::file(m_resource_path + "textures/moonmap.png") };
 
-	planets = { skybox, sun, mercury, venus, earth, mars, jupiter, saturn, uranus, neptune, moon };
+	planets = { sun, mercury, venus, earth, mars, jupiter, saturn, uranus, neptune, moon, skybox };
 
   initializeGeometry();
   initializeShaderPrograms();
