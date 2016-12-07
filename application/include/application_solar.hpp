@@ -42,9 +42,11 @@ class ApplicationSolar : public Application {
  
  
   GLuint tex_handle;
+  bool greyscale;
 
   // cpu representation of model
   model_object planet_object;
+  model_object quad_object;
 };
 
 #endif
