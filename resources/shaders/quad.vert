@@ -2,17 +2,16 @@
 #extension GL_ARB_explicit_attrib_location : require
 
 layout(location = 0) in vec3 in_Position;
+layout(location=1) in vec2 in_Texcoord;
+
+//uniform mat4 ModelMatrix;
+//uniform mat4 ViewMatrix;
+//uniform mat4 ProjectionMatrix;
+
 
 out vec2 pass_Texcoord;
 
 void main() {
-	gl_Position = vec4(in_Position, 1.0);
-    if (in_Position == vec3(-1.0f,-1.0f,0.0f))
-        pass_Texcoord = vec2(0.0f,0.0f);
-    else if (in_Position == vec3(1.0f,-1.0f,0.0f))
-        pass_Texcoord = vec2(1.0f,0.0f);
-    else if (in_Position == vec3(1.0f,1.0f,0.0f))
-        pass_Texcoord = vec2(1.0f,1.0f);
-    else if (in_Position == vec3(-1.0f,1.0f,0.0f))
-        pass_Texcoord = vec2(0.0f,1.0f);
+	gl_Position = vec4(in_Position, 1.0f);
+    pass_Texcoord = in_Texcoord;
 }

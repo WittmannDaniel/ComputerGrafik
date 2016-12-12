@@ -5,6 +5,7 @@
 #include "model.hpp"
 #include "structs.hpp"
 #include "planet.hpp"
+#include "framebuffer.hpp"
 
 
 // gpu representation of model
@@ -34,6 +35,12 @@ class ApplicationSolar : public Application {
   void initializeGeometry();
   void updateView();
   void initializeTextures();
+  void renderingQuad() const;
+
+  void rendbuffer(GLsizei width, GLsizei height);
+  void framebuffer(GLsizei width, GLsizei height);
+  void screenQuad();
+
 
 
   
@@ -42,7 +49,7 @@ class ApplicationSolar : public Application {
  
  
   GLuint tex_handle;
-  bool greyscale;
+
 
   // cpu representation of model
   model_object planet_object;
