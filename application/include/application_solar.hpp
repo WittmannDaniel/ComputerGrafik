@@ -37,8 +37,8 @@ class ApplicationSolar : public Application {
   void initializeTextures();
   void renderingQuad() const;
 
-  void rendbuffer(GLsizei width, GLsizei height);
-  void framebuffer(GLsizei width, GLsizei height);
+  void rendbuffer();
+  void framebuffer();
   void screenQuad();
 
 

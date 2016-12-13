@@ -173,10 +173,11 @@ void ApplicationSolar::renderingQuad() const {
 
 void ApplicationSolar::updateView() {
 
-  rendbuffer(600, 400);
-  framebuffer(600, 400);
+  rendbuffer();
+  framebuffer();
   // vertices are transformed in camera space, so camera transform must be inverted
   glm::fmat4 view_matrix = glm::inverse(m_view_transform);
+
 
   // upload matrix to gpu
   glUniformMatrix4fv(m_shaders.at("planet").u_locs.at("ViewMatrix"),
@@ -193,7 +194,7 @@ void ApplicationSolar::updateView() {
 
   glUseProgram(m_shaders.at("quad").handle);
   glUniformMatrix4fv(m_shaders.at("quad").u_locs.at("ViewMatrix"), 1, GL_FALSE, glm::value_ptr(view_matrix));
-  //glUniform2f(m_shaders.at("quad").u_locs.at("res_screen"), GLfloat(600), GLfloat(400));
+
 }
 
 void ApplicationSolar::updateProjection() {
@@ -265,7 +266,7 @@ void ApplicationSolar::initializeShaderPrograms() {
   m_shaders.at("planet").u_locs["ModelMatrix"] = -1;
   m_shaders.at("planet").u_locs["ViewMatrix"] = -1;
   m_shaders.at("planet").u_locs["ProjectionMatrix"] = -1;
-  //m_shaders.at("quad").u_locs["ColorTex"] = -1;
+  
 
   m_shaders.emplace("star", shader_program{m_resource_path + "shaders/stars.vert",
 										  m_resource_path + "shaders/stars.frag" });
@@ -355,41 +356,25 @@ void ApplicationSolar::initializeGeometry() {
 
 }
 
-void ApplicationSolar::rendbuffer(GLsizei width, GLsizei height) {
+void ApplicationSolar::rendbuffer() {
 	glGenRenderbuffers(1, &RenderBO);
 	glBindRenderbuffer(GL_RENDERBUFFER, RenderBO);
-	glRenderbufferStorage(GL_RENDERBUFFER,
-		GL_DEPTH_COMPONENT24,
-		width,
-		height
-	);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 600, 400);
 }
 
-void ApplicationSolar::framebuffer(GLsizei width, GLsizei height) {
+void ApplicationSolar::framebuffer() {
 	glGenTextures(1, &screen_quad_texture.obj_ptr);
 	glBindTexture(GL_TEXTURE_2D, screen_quad_texture.obj_ptr);
 
-	// set texture sampling parameters
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GLint(GL_LINEAR));
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GLint(GL_LINEAR));
-	glTexImage2D(GL_TEXTURE_2D, 0, GLint(GL_RGBA8), width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GLint(GL_RGBA8), 600, 400, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
 
 	glGenFramebuffers(1, &FrameBO);
 	glBindFramebuffer(GL_FRAMEBUFFER, FrameBO);
 
-	glFramebufferTexture(
-		GL_FRAMEBUFFER,
-		GL_COLOR_ATTACHMENT0,        // GL_DEPTH_ATTACHMENT
-		screen_quad_texture.obj_ptr,
-		0
-	);
-
-	glFramebufferRenderbuffer(
-		GL_FRAMEBUFFER,
-		GL_DEPTH_ATTACHMENT,
-		GL_RENDERBUFFER_EXT,
-		RenderBO
-	);
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, screen_quad_texture.obj_ptr, 0);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER_EXT, RenderBO );
 
 	GLenum draw_buffers[1] = { GL_COLOR_ATTACHMENT0 };
 	glDrawBuffers(1, draw_buffers);
@@ -401,15 +386,8 @@ void ApplicationSolar::framebuffer(GLsizei width, GLsizei height) {
 }
 
 void ApplicationSolar::screenQuad() {
-	std::vector<GLfloat> vertices{
-		-1.0f, -1.0f, 0.0f, 0.0f,
-		0.0f, 1.0f, -1.0f, 0.0f, 
-		1.0f, 0.0f, -1.0f, 1.0f, 
-		0.0f, 0.0f, 1.0f, 1.0f, 
-		1.0f, 0.0f, 1.0f, 1.0f  
-	};
-
-	auto num_bytes = 5 * sizeof(GLfloat);
+	std::vector<GLfloat> vertices{-1.0f, -1.0f, 0.0f, 0.0f,		0.0f, 1.0f, -1.0f, 0.0f,	1.0f, 0.0f, -1.0f, 1.0f, 
+									0.0f, 0.0f, 1.0f, 1.0f,		1.0f, 0.0f, 1.0f, 1.0f  };
 
 	glGenVertexArrays(1, &screen_quad_object.vertex_AO);
 	glBindVertexArray(screen_quad_object.vertex_AO);
@@ -421,12 +399,12 @@ void ApplicationSolar::screenQuad() {
 	// activate first attribute on gpu
 	glEnableVertexAttribArray(0);
 	uintptr_t offset0 = 0 * sizeof(GLfloat);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, GLsizei(num_bytes), (const GLvoid*)offset0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, GLsizei(5 * sizeof(GLfloat)), (const GLvoid*)offset0);
 
 	// activate third attribute on gpu
 	glEnableVertexAttribArray(1);
 	uintptr_t offset1 = 3 * sizeof(GLfloat);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, GLsizei(num_bytes), (const GLvoid*)offset1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, GLsizei(5 * sizeof(GLfloat)), (const GLvoid*)offset1);
 
 	std::cout << "Running Quad" << std::endl;
 }
