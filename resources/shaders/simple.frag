@@ -45,14 +45,14 @@ float specularLighting(in vec4 N, in vec3 L, in vec3 V, in float u_matSpecularRe
 
 void main(void)
 {
-	float u_lightAmbientIntensitys = 1;
-	float u_lightDiffuseIntensitys = 1;
-	float u_lightSpecularIntensitys = 1;
+	float u_lightAmbientIntensitys = 0.7;
+	float u_lightDiffuseIntensitys = 0.7;
+	float u_lightSpecularIntensitys = 0.7;
 
 // parameters of the material and possible values
-	float u_matAmbientReflectances = 01;
+	float u_matAmbientReflectances = 0.8;
 	float u_matDiffuseReflectances = 0.4;
-	float u_matSpecularReflectances = 1;
+	float u_matSpecularReflectances = 0.6;
 	float u_matShininess = 100;
 
    // normalize vectors after interpolation

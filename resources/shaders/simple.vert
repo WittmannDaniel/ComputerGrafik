@@ -33,10 +33,10 @@ void main(void)
 	//pass_Normal = (NormalMatrix * vec4(in_Normal, 0.0)).xyz;
 	color_planet = planet_rgb;
 
-	vec4 worldPosition = ModelMatrix * vec4(in_Position, 1);
-
+	vec3 worldPosition = vec3((ViewMatrix * ModelMatrix) * vec4(in_Position, 1.0));
+	
    // normal in world space
-   pass_Normal	= normalize(NormalMatrix * vec4 (in_Normal, 1));
+   pass_Normal	= normalize(NormalMatrix * vec4 (in_Normal, 1.0));
 
    // direction to light
    pass_toLight	= normalize(light_position.xyz - worldPosition.xyz);

@@ -29,21 +29,6 @@ using namespace gl;
 
 std::vector<texture_object> texture_objects;
 
-
-// texture_loader::file(m_resource_path + "textures/sunmap.png")
-
-/*// initialize all planets
-planet sun{ "sun"    , 0.0f, 0.0f, 0.7f, false, texture_loader::file(m_resource_path + "texture/sunmap.png" ) };
-planet mercury{ "mercury", 1.0f , 365 / 88.0f, 0.05f, false, 0.5f, 0.5f, 0.5f };
-planet venus{ "venus"  , 2.0f , 365 / 225.0f, 0.2f, false, 0.5f, 0.5f, 1.0f };
-planet earth{ "earth"  , 3.0f , 1.0f , 0.15f, false, 0.0f, 0.0f, 1.0f };
-planet mars{ "mars"   , 3.5f , 365 / 687.0f   , 0.1f, false, 1.0f, 0.0f, 0.0f };
-planet jupiter{ "jupiter", 4.0f , 365 / 4329.f, 0.35f, false, 0.5f, 0.5f, 0.7f };
-planet saturn{ "saturn" , 5.0f , 365 / 1751.0f, 0.2f, false, 0.7f, 0.7f, 0.4f };
-planet uranus{ "uranus" , 6.0f , 365 / 30664.0f , 0.2f, false, 0.5f, 0.5f, 0.7f };
-planet neptune{ "neptune", 6.5f , 365 / 60148.0f , 0.15f, false, 0.5f, 0.5f, 1.0f };
-planet moon{ "moon"   , 0.3f , 1.0f ,0.05f, true, 0.5f, 0.5f, 0.5f };*/
-
 std::vector<planet>planets; 
 std::vector<texture_object> textures;
 
@@ -61,7 +46,6 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
  ,planet_object{}
  ,stars{}
  ,stars_object{}
- 
 
 {
 	// initialize all planets
@@ -91,8 +75,8 @@ void ApplicationSolar::upload_planet_transforms(planet const& planet, texture_ob
 	glm::fmat4 model_matrix = glm::fmat4{};
 
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(tex_object.target, tex_object.handle);
 
+	glBindTexture(tex_object.target, tex_object.handle);
 	glUniform1i(glGetUniformLocation(m_shaders.at("planet").handle, "ColorTex"), tex_object.handle);
 	
 	if (planet.is_moon == true)
@@ -180,7 +164,7 @@ void ApplicationSolar::renderingQuad() const {
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, screen_quad_texture.obj_ptr);
-	glUniform1i(m_shaders.at("quad").u_locs.at("colTex"), 0);
+	glUniform1i(m_shaders.at("quad").u_locs.at("ColorTex"), 0);
 
 	glBindVertexArray(screen_quad_object.vertex_AO);
 	utils::validate_program(m_shaders.at("quad").handle);
@@ -281,6 +265,7 @@ void ApplicationSolar::initializeShaderPrograms() {
   m_shaders.at("planet").u_locs["ModelMatrix"] = -1;
   m_shaders.at("planet").u_locs["ViewMatrix"] = -1;
   m_shaders.at("planet").u_locs["ProjectionMatrix"] = -1;
+  //m_shaders.at("quad").u_locs["ColorTex"] = -1;
 
   m_shaders.emplace("star", shader_program{m_resource_path + "shaders/stars.vert",
 										  m_resource_path + "shaders/stars.frag" });
@@ -291,10 +276,11 @@ void ApplicationSolar::initializeShaderPrograms() {
   m_shaders.emplace("quad", shader_program{ m_resource_path + "shaders/quad.vert",
 										 m_resource_path + "shaders/quad.frag" });
   // request uniform locations for shader program
-  //m_shaders.at("quad").u_locs["ModelMatrix"] = -1;
-  //m_shaders.at("quad").u_locs["ViewMatrix"] = -1;
-  //m_shaders.at("quad").u_locs["ProjectionMatrix"] = -1;
+  m_shaders.at("quad").u_locs["ModelMatrix"] = -1;
+  m_shaders.at("quad").u_locs["ViewMatrix"] = -1;
+  m_shaders.at("quad").u_locs["ProjectionMatrix"] = -1;
   m_shaders.at("quad").u_locs["greyscale"] = -1;
+  m_shaders.at("quad").u_locs["ColorTex"] = -1;
  
 }
 
@@ -421,11 +407,6 @@ void ApplicationSolar::screenQuad() {
 		1.0f, 0.0f, -1.0f, 1.0f, 
 		0.0f, 0.0f, 1.0f, 1.0f, 
 		1.0f, 0.0f, 1.0f, 1.0f  
-	};
-
-	std::vector<GLuint> indices{
-		0, 1, 2, 
-		0, 2, 3 
 	};
 
 	auto num_bytes = 5 * sizeof(GLfloat);
