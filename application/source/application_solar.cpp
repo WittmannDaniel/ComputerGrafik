@@ -357,6 +357,14 @@ void ApplicationSolar::initializeGeometry() {
   stars_object.draw_mode = GL_POINTS;
   stars_object.num_elements = GLsizei(5000);
 
+  // Uniform Block
+
+  GLuint ubo = 0;
+  glGenBuffers(1, &ubo);
+  glBindBuffer(GL_UNIFORM_BUFFER, ubo);
+  glBufferData(GL_UNIFORM_BUFFER, sizeof(view_projectoion_UBO), &view_projectoion_UBO, GL_DYNAMIC_DRAW);
+  glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
 }
 
 void ApplicationSolar::rendbuffer() {
