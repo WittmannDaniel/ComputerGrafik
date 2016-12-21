@@ -5,6 +5,7 @@
 #include "launcher.hpp"
 #include "texture_loader.hpp"
 
+#include "shader_data.hpp"
 
 #include "utils.hpp"
 #include "shader_loader.hpp"
@@ -31,6 +32,8 @@ std::vector<texture_object> texture_objects;
 
 std::vector<planet>planets; 
 std::vector<texture_object> textures;
+
+shader_data  view_projectoion_UBO;
 
 GLuint RenderBO;
 GLuint FrameBO;
