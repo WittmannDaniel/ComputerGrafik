@@ -1,4 +1,4 @@
-#version 150
+#version 430
 
 in  vec4 pass_Normal;
 in	vec3 color_planet;
@@ -7,6 +7,16 @@ in vec3	pass_toLight;
 in vec3	pass_toCamera;
 
 in vec2 pass_Texcoord;
+
+struct light_data {
+  float radius;
+  vec3 color;
+  vec2 position;
+};
+
+layout (std430 , binding = 3) buffer light_array {
+  light_data lights[];
+};
 
 uniform sampler2D u_diffuseTexture;
 

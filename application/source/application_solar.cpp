@@ -34,9 +34,14 @@ std::vector<planet>planets;
 std::vector<texture_object> textures;
 
 shader_data  view_projectoion_UBO;
+std::vector<light_data> lights(5);
 
 GLuint RenderBO;
 GLuint FrameBO;
+
+GLuint ssbo = 0;
+GLuint ubo = 0;
+
 FBtexObj screen_quad_texture;
 QuadObj screen_quad_object;
 
@@ -138,7 +143,7 @@ void ApplicationSolar::render() const {
 
 
 	// for loop over container of planets
-	glUseProgram(m_shaders.at("planet").handle);
+	glUseProgram(m_shaders.at("planet").handle);
 
 	std::vector<texture_object>::iterator j = textures.begin();
 	for (std::vector<planet>::iterator i = planets.begin(); i != planets.end(); ++i)
@@ -160,6 +165,20 @@ void ApplicationSolar::render() const {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	renderingQuad();
+
+	unsigned int block_index_ssbo = 0;
+	block_index_ssbo = glGetProgramResourceIndex(m_shaders.at("planet").handle, GL_SHADER_STORAGE_BLOCK, "light_array");
+	//GLuint ssbo_binding_point_index = 3;
+	//glShaderStorageBlockBinding(m_shaders.at("planet").handle, block_index_ssbo, ssbo_binding_point_index);
+
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
+	GLvoid* p = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
+	memcpy(p, &lights, sizeof(lights));
+	glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+
+	unsigned int block_index_ubo = glGetUniformBlockIndex(m_shaders.at("planet").handle, "shader_data");
+	GLuint binding_point_index = 4;
+	glUniformBlockBinding(m_shaders.at("planet").handle, block_index_ubo, binding_point_index);
 }
 
 void ApplicationSolar::renderingQuad() const {
@@ -178,13 +197,14 @@ void ApplicationSolar::updateView() {
 
   rendbuffer();
   framebuffer();
+
   // vertices are transformed in camera space, so camera transform must be inverted
   glm::fmat4 view_matrix = glm::inverse(m_view_transform);
 
 
   // upload matrix to gpu
-  glUniformMatrix4fv(m_shaders.at("planet").u_locs.at("ViewMatrix"),
-                     1, GL_FALSE, glm::value_ptr(view_matrix));
+//  glUniformMatrix4fv(m_shaders.at("planet").u_locs.at("ViewMatrix"),
+  //                   1, GL_FALSE, glm::value_ptr(view_matrix));
 
 
   // stars shader
@@ -193,10 +213,12 @@ void ApplicationSolar::updateView() {
 					 1, GL_FALSE, glm::value_ptr(view_matrix));
 
   // return to planet shader
-  glUseProgram(m_shaders.at("planet").handle);
+ // glUseProgram(m_shaders.at("planet").handle);
 
   glUseProgram(m_shaders.at("quad").handle);
   glUniformMatrix4fv(m_shaders.at("quad").u_locs.at("ViewMatrix"), 1, GL_FALSE, glm::value_ptr(view_matrix));
+
+  view_projectoion_UBO.view_matrix_struct = view_matrix;
 
 }
 
@@ -205,8 +227,8 @@ void ApplicationSolar::updateProjection() {
   glUseProgram(m_shaders.at("planet").handle);
 
   // upload matrix to gpu
-  glUniformMatrix4fv(m_shaders.at("planet").u_locs.at("ProjectionMatrix"),
-                     1, GL_FALSE, glm::value_ptr(m_view_projection));
+//  glUniformMatrix4fv(m_shaders.at("planet").u_locs.at("ProjectionMatrix"),
+ //                    1, GL_FALSE, glm::value_ptr(m_view_projection));
 
 
   glUseProgram(m_shaders.at("star").handle);
@@ -214,6 +236,8 @@ void ApplicationSolar::updateProjection() {
 					 1, GL_FALSE, glm::value_ptr(m_view_projection));
 
   glUseProgram(m_shaders.at("planet").handle);
+
+  view_projectoion_UBO.projection_matrix_struct = m_view_projection;
 
 }
 
@@ -226,6 +250,11 @@ void ApplicationSolar::uploadUniforms() {
   
   updateView();
   updateProjection();
+
+  glBindBuffer(GL_UNIFORM_BUFFER, ubo);
+  GLvoid* p = glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
+  memcpy(p, &view_projectoion_UBO, sizeof(view_projectoion_UBO));
+  glUnmapBuffer(GL_UNIFORM_BUFFER);
 }
 
 // handle key input
@@ -267,8 +296,9 @@ void ApplicationSolar::initializeShaderPrograms() {
   // request uniform locations for shader program
   m_shaders.at("planet").u_locs["NormalMatrix"] = -1;
   m_shaders.at("planet").u_locs["ModelMatrix"] = -1;
-  m_shaders.at("planet").u_locs["ViewMatrix"] = -1;
-  m_shaders.at("planet").u_locs["ProjectionMatrix"] = -1;
+  //m_shaders.at("planet").u_locs["ViewMatrix"] = -1;
+  //m_shaders.at("planet").u_locs["ProjectionMatrix"] = -1;
+  //m_shaders.at("planet").u_locs["lights"] = -1;
   
 
   m_shaders.emplace("star", shader_program{m_resource_path + "shaders/stars.vert",
@@ -341,6 +371,16 @@ void ApplicationSolar::initializeGeometry() {
 	  }
   }
 
+  //initialization light data vector
+
+  for (int i = 0; i < 5; ++i)
+  {
+	  lights[i].color = glm::vec3{ rand() % 256, rand() % 256, rand() % 256 };
+	  lights[i].position = glm::vec2{ (static_cast<float> (rand()) / static_cast<float> (RAND_MAX)),
+		  (static_cast<float> (rand()) / static_cast<float> (RAND_MAX)) };
+	  lights[i].radius = (static_cast<float> (rand()) / static_cast<float> (RAND_MAX));
+  }
+
 
   glGenVertexArrays(1, &stars_object.vertex_AO);
   glBindVertexArray(stars_object.vertex_AO);
@@ -359,11 +399,16 @@ void ApplicationSolar::initializeGeometry() {
 
   // Uniform Block
 
-  GLuint ubo = 0;
   glGenBuffers(1, &ubo);
-  glBindBuffer(GL_UNIFORM_BUFFER, ubo);
+  glBindBufferBase(GL_UNIFORM_BUFFER, 4, ubo);
   glBufferData(GL_UNIFORM_BUFFER, sizeof(view_projectoion_UBO), &view_projectoion_UBO, GL_DYNAMIC_DRAW);
   glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+  glGenBuffers(1, &ssbo);
+  glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
+  glBindBufferRange(GL_SHADER_STORAGE_BUFFER, 3, ssbo, 0, sizeof(lights));
+  glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(lights), &lights, GL_DYNAMIC_DRAW);
+  glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
 }
 
@@ -395,6 +440,7 @@ void ApplicationSolar::framebuffer() {
 		throw std::runtime_error("Error Framebuffer");
 	}
 }
+
 
 void ApplicationSolar::screenQuad() {
 	std::vector<GLfloat> vertices{-1.0f, -1.0f, 0.0f, 0.0f,		0.0f, 1.0f, -1.0f, 0.0f,	1.0f, 0.0f, -1.0f, 1.0f, 
