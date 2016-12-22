@@ -46,7 +46,7 @@ FBtexObj screen_quad_texture;
 QuadObj screen_quad_object;
 
 bool greyscale = false;
-
+bool flipHor = false;
 
 
 ApplicationSolar::ApplicationSolar(std::string const& resource_path)
@@ -262,6 +262,20 @@ void ApplicationSolar::keyCallback(int key, int scancode, int action, int mods) 
 		  glUniform1i(glGetUniformLocation(m_shaders.at("quad").handle, "greyscale"), greyscale);
 	  }
   }
+  if (key == GLFW_KEY_8 && action == GLFW_PRESS)
+  { 
+	  if (flipHor == false)
+	  {
+		  flipHor = true;
+		  glUseProgram(m_shaders.at("quad").handle);
+		  glUniform1i(m_shaders.at("quad").u_locs.at("setHor"), flipHor);
+	  }
+	  else {
+		  flipHor = false;
+		  glUseProgram(m_shaders.at("quad").handle);
+		  glUniform1i(m_shaders.at("quad").u_locs.at("setHor"), flipHor);
+	  }
+  }
 }
 
 //handle delta mouse movement input
@@ -288,6 +302,7 @@ void ApplicationSolar::initializeShaderPrograms() {
   // request uniform locations for shader program
   m_shaders.at("quad").u_locs["greyscale"] = -1;
   m_shaders.at("quad").u_locs["ColorTex"] = -1;
+  m_shaders.at("quad").u_locs["setHor"] = -1;
  
 }
 
