@@ -200,11 +200,14 @@ void ApplicationSolar::updateView() {
 
   // vertices are transformed in camera space, so camera transform must be inverted
   glm::fmat4 view_matrix = glm::inverse(m_view_transform);
+  view_projectoion_UBO.view_matrix_struct = view_matrix;
 
+  // Uniform Block
 
-  // upload matrix to gpu
-//  glUniformMatrix4fv(m_shaders.at("planet").u_locs.at("ViewMatrix"),
-  //                   1, GL_FALSE, glm::value_ptr(view_matrix));
+  glGenBuffers(1, &ubo);
+  glBindBufferBase(GL_UNIFORM_BUFFER, 4, ubo);
+  glBufferData(GL_UNIFORM_BUFFER, sizeof(view_projectoion_UBO), &view_projectoion_UBO, GL_DYNAMIC_DRAW);
+  glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 
   // stars shader
@@ -212,23 +215,23 @@ void ApplicationSolar::updateView() {
   glUniformMatrix4fv(m_shaders.at("star").u_locs.at("ViewMatrix"),
 					 1, GL_FALSE, glm::value_ptr(view_matrix));
 
-  // return to planet shader
- // glUseProgram(m_shaders.at("planet").handle);
 
   glUseProgram(m_shaders.at("quad").handle);
   glUniformMatrix4fv(m_shaders.at("quad").u_locs.at("ViewMatrix"), 1, GL_FALSE, glm::value_ptr(view_matrix));
-
-  view_projectoion_UBO.view_matrix_struct = view_matrix;
-
-}
+  }
 
 void ApplicationSolar::updateProjection() {
 
+  view_projectoion_UBO.projection_matrix_struct = m_view_projection;
   glUseProgram(m_shaders.at("planet").handle);
 
-  // upload matrix to gpu
-//  glUniformMatrix4fv(m_shaders.at("planet").u_locs.at("ProjectionMatrix"),
- //                    1, GL_FALSE, glm::value_ptr(m_view_projection));
+
+ // Uniform Block
+
+  glGenBuffers(1, &ubo);
+  glBindBufferBase(GL_UNIFORM_BUFFER, 4, ubo);
+  glBufferData(GL_UNIFORM_BUFFER, sizeof(view_projectoion_UBO), &view_projectoion_UBO, GL_DYNAMIC_DRAW);
+  glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 
   glUseProgram(m_shaders.at("star").handle);
@@ -296,8 +299,6 @@ void ApplicationSolar::initializeShaderPrograms() {
   // request uniform locations for shader program
   m_shaders.at("planet").u_locs["NormalMatrix"] = -1;
   m_shaders.at("planet").u_locs["ModelMatrix"] = -1;
-  //m_shaders.at("planet").u_locs["ViewMatrix"] = -1;
-  //m_shaders.at("planet").u_locs["ProjectionMatrix"] = -1;
   //m_shaders.at("planet").u_locs["lights"] = -1;
   
 
@@ -398,11 +399,12 @@ void ApplicationSolar::initializeGeometry() {
   stars_object.num_elements = GLsizei(5000);
 
   // Uniform Block
-
+  /*
   glGenBuffers(1, &ubo);
   glBindBufferBase(GL_UNIFORM_BUFFER, 4, ubo);
   glBufferData(GL_UNIFORM_BUFFER, sizeof(view_projectoion_UBO), &view_projectoion_UBO, GL_DYNAMIC_DRAW);
   glBindBuffer(GL_UNIFORM_BUFFER, 0);
+  */
 
   glGenBuffers(1, &ssbo);
   glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
