@@ -36,6 +36,10 @@ out vec3 pass_toCamera;
 
 out vec2 pass_Texcoord;
 
+out vec4 pass_position;
+out mat4 pass_ViewMatrix;
+out vec3 pass_worldPosition;
+
 void main(void)
 {
 	mat4 ViewMatrix = view_matrix_struct;
@@ -58,5 +62,7 @@ void main(void)
    pass_toCamera	= normalize( - worldPosition.xyz);
 
    pass_Texcoord = in_Texcoord;
-
+   pass_position = vec4(in_Position, 1);
+   pass_ViewMatrix = ViewMatrix;
+   pass_worldPosition = worldPosition;
 }

@@ -203,44 +203,22 @@ void ApplicationSolar::updateView() {
   view_projectoion_UBO.view_matrix_struct = view_matrix;
 
   // Uniform Block
-
   glGenBuffers(1, &ubo);
   glBindBufferBase(GL_UNIFORM_BUFFER, 4, ubo);
-  glBufferData(GL_UNIFORM_BUFFER, sizeof(view_projectoion_UBO), &view_projectoion_UBO, GL_DYNAMIC_DRAW);
+  glBufferData(GL_UNIFORM_BUFFER, sizeof(view_projectoion_UBO),
+				&view_projectoion_UBO, GL_DYNAMIC_DRAW);
   glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-
-  // stars shader
-  glUseProgram(m_shaders.at("star").handle);
-  glUniformMatrix4fv(m_shaders.at("star").u_locs.at("ViewMatrix"),
-					 1, GL_FALSE, glm::value_ptr(view_matrix));
-
-
-  glUseProgram(m_shaders.at("quad").handle);
-  glUniformMatrix4fv(m_shaders.at("quad").u_locs.at("ViewMatrix"), 1, GL_FALSE, glm::value_ptr(view_matrix));
-  }
+}
 
 void ApplicationSolar::updateProjection() {
 
   view_projectoion_UBO.projection_matrix_struct = m_view_projection;
-  glUseProgram(m_shaders.at("planet").handle);
-
 
  // Uniform Block
-
   glGenBuffers(1, &ubo);
   glBindBufferBase(GL_UNIFORM_BUFFER, 4, ubo);
   glBufferData(GL_UNIFORM_BUFFER, sizeof(view_projectoion_UBO), &view_projectoion_UBO, GL_DYNAMIC_DRAW);
   glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-
-  glUseProgram(m_shaders.at("star").handle);
-  glUniformMatrix4fv(m_shaders.at("star").u_locs.at("ProjectionMatrix"),
-					 1, GL_FALSE, glm::value_ptr(m_view_projection));
-
-  glUseProgram(m_shaders.at("planet").handle);
-
-  view_projectoion_UBO.projection_matrix_struct = m_view_projection;
 
 }
 
@@ -304,16 +282,10 @@ void ApplicationSolar::initializeShaderPrograms() {
 
   m_shaders.emplace("star", shader_program{m_resource_path + "shaders/stars.vert",
 										  m_resource_path + "shaders/stars.frag" });
-  //m_shaders.at("star").u_locs["ModelMatrix"] = 1;
-  m_shaders.at("star").u_locs["ViewMatrix"] = -1;
-  m_shaders.at("star").u_locs["ProjectionMatrix"] = -1;
 
   m_shaders.emplace("quad", shader_program{ m_resource_path + "shaders/quad.vert",
 										 m_resource_path + "shaders/quad.frag" });
   // request uniform locations for shader program
-  m_shaders.at("quad").u_locs["ModelMatrix"] = -1;
-  m_shaders.at("quad").u_locs["ViewMatrix"] = -1;
-  m_shaders.at("quad").u_locs["ProjectionMatrix"] = -1;
   m_shaders.at("quad").u_locs["greyscale"] = -1;
   m_shaders.at("quad").u_locs["ColorTex"] = -1;
  
@@ -377,8 +349,9 @@ void ApplicationSolar::initializeGeometry() {
   for (int i = 0; i < 5; ++i)
   {
 	  lights[i].color = glm::vec3{ rand() % 256, rand() % 256, rand() % 256 };
-	  lights[i].position = glm::vec2{ (static_cast<float> (rand()) / static_cast<float> (RAND_MAX)),
-		  (static_cast<float> (rand()) / static_cast<float> (RAND_MAX)) };
+	  lights[i].position = glm::vec3{ (static_cast<float> (rand()) / static_cast<float> (RAND_MAX)),
+									  (static_cast<float> (rand()) / static_cast<float> (RAND_MAX)) ,
+									  (static_cast<float> (rand()) / static_cast<float> (RAND_MAX)) };
 	  lights[i].radius = (static_cast<float> (rand()) / static_cast<float> (RAND_MAX));
   }
 

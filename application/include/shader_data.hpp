@@ -8,5 +8,5 @@ struct light_data
 {
 	float radius;
 	glm::vec3 color;
-	glm::vec2 position;
+	glm::vec3 position;
 };
