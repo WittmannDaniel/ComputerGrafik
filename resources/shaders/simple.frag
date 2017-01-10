@@ -18,7 +18,7 @@ struct light_data {
   vec3 position;
 };
 
-layout (std430 , binding = 3) buffer light_array {
+layout (std430) buffer light_array {
   light_data lights[];
 };
 

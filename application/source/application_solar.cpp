@@ -33,7 +33,7 @@ std::vector<texture_object> texture_objects;
 std::vector<planet>planets; 
 std::vector<texture_object> textures;
 
-shader_data  view_projectoion_UBO;
+shader_data  view_projection_UBO;
 std::vector<light_data> lights(5);
 
 GLuint RenderBO;
@@ -47,6 +47,7 @@ QuadObj screen_quad_object;
 
 bool greyscale = false;
 bool flipHor = false;
+
 
 
 ApplicationSolar::ApplicationSolar(std::string const& resource_path)
@@ -71,6 +72,7 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
 
 	planets = { sun, mercury, venus, earth, mars, jupiter, saturn, uranus, neptune, moon, skybox };
 
+	
   initializeGeometry();
   initializeShaderPrograms();
   initializeTextures();
@@ -166,15 +168,9 @@ void ApplicationSolar::render() const {
 
 	renderingQuad();
 
-	unsigned int block_index_ssbo = 0;
-	block_index_ssbo = glGetProgramResourceIndex(m_shaders.at("planet").handle, GL_SHADER_STORAGE_BLOCK, "light_array");
-	//GLuint ssbo_binding_point_index = 3;
-	//glShaderStorageBlockBinding(m_shaders.at("planet").handle, block_index_ssbo, ssbo_binding_point_index);
-
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
-	GLvoid* p = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
-	memcpy(p, &lights, sizeof(lights));
-	glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+	unsigned int block_index_ssbo = glGetProgramResourceIndex(m_shaders.at("planet").handle, GL_SHADER_STORAGE_BLOCK, "light_array");
+	GLuint ssbo_binding_point_index = 3;
+	glShaderStorageBlockBinding(m_shaders.at("planet").handle, block_index_ssbo, ssbo_binding_point_index);
 
 	unsigned int block_index_ubo = glGetUniformBlockIndex(m_shaders.at("planet").handle, "shader_data");
 	GLuint binding_point_index = 4;
@@ -200,24 +196,24 @@ void ApplicationSolar::updateView() {
 
   // vertices are transformed in camera space, so camera transform must be inverted
   glm::fmat4 view_matrix = glm::inverse(m_view_transform);
-  view_projectoion_UBO.view_matrix_struct = view_matrix;
+  view_projection_UBO.view_matrix_struct = view_matrix;
 
   // Uniform Block
   glGenBuffers(1, &ubo);
   glBindBufferBase(GL_UNIFORM_BUFFER, 4, ubo);
-  glBufferData(GL_UNIFORM_BUFFER, sizeof(view_projectoion_UBO),
-				&view_projectoion_UBO, GL_DYNAMIC_DRAW);
+  glBufferData(GL_UNIFORM_BUFFER, sizeof(view_projection_UBO),
+				&view_projection_UBO, GL_DYNAMIC_DRAW);
   glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
 void ApplicationSolar::updateProjection() {
 
-  view_projectoion_UBO.projection_matrix_struct = m_view_projection;
+  view_projection_UBO.projection_matrix_struct = m_view_projection;
 
  // Uniform Block
   glGenBuffers(1, &ubo);
   glBindBufferBase(GL_UNIFORM_BUFFER, 4, ubo);
-  glBufferData(GL_UNIFORM_BUFFER, sizeof(view_projectoion_UBO), &view_projectoion_UBO, GL_DYNAMIC_DRAW);
+  glBufferData(GL_UNIFORM_BUFFER, sizeof(view_projection_UBO), &view_projection_UBO, GL_DYNAMIC_DRAW);
   glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 }
@@ -233,9 +229,14 @@ void ApplicationSolar::uploadUniforms() {
   updateProjection();
 
   glBindBuffer(GL_UNIFORM_BUFFER, ubo);
-  GLvoid* p = glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
-  memcpy(p, &view_projectoion_UBO, sizeof(view_projectoion_UBO));
+  GLvoid* p1 = glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
+  memcpy(p1, &view_projection_UBO, sizeof(view_projection_UBO));
   glUnmapBuffer(GL_UNIFORM_BUFFER);
+
+  glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
+  GLvoid* p2 = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_WRITE_ONLY);
+  memcpy(p2, lights.data(), lights.size()*sizeof(lights));
+  glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 }
 
 // handle key input
@@ -390,14 +391,14 @@ void ApplicationSolar::initializeGeometry() {
   /*
   glGenBuffers(1, &ubo);
   glBindBufferBase(GL_UNIFORM_BUFFER, 4, ubo);
-  glBufferData(GL_UNIFORM_BUFFER, sizeof(view_projectoion_UBO), &view_projectoion_UBO, GL_DYNAMIC_DRAW);
+  glBufferData(GL_UNIFORM_BUFFER, sizeof(view_projection_UBO), &view_projection_UBO, GL_DYNAMIC_DRAW);
   glBindBuffer(GL_UNIFORM_BUFFER, 0);
   */
 
   glGenBuffers(1, &ssbo);
   glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
-  glBindBufferRange(GL_SHADER_STORAGE_BUFFER, 3, ssbo, 0, sizeof(lights));
-  glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(lights), &lights, GL_DYNAMIC_DRAW);
+  glBindBufferRange(GL_SHADER_STORAGE_BUFFER, 3, ssbo, 0, lights.size()*sizeof(light_data));
+  glBufferData(GL_SHADER_STORAGE_BUFFER, lights.size()*sizeof(light_data), lights.data(), GL_DYNAMIC_DRAW);
   glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
 }
