@@ -364,10 +364,14 @@ void ApplicationSolar::initializeGeometry() {
 
   for (int i = 0; i < 5; ++i)
   {
-	  lights[i].color = glm::vec3{ rand() % 256, rand() % 256, rand() % 256 };
-	  lights[i].position = glm::vec3{ (static_cast<float> (rand()) / static_cast<float> (RAND_MAX)),
+	  lights[i].color = glm::vec4{ (static_cast<float> (rand()) / static_cast<float> (RAND_MAX)) ,
+									(static_cast<float> (rand()) / static_cast<float> (RAND_MAX)) ,
+									(static_cast<float> (rand()) / static_cast<float> (RAND_MAX)) ,
+										1 };
+	  lights[i].position = glm::vec4{ (static_cast<float> (rand()) / static_cast<float> (RAND_MAX)),
 									  (static_cast<float> (rand()) / static_cast<float> (RAND_MAX)) ,
-									  (static_cast<float> (rand()) / static_cast<float> (RAND_MAX)) };
+									  (static_cast<float> (rand()) / static_cast<float> (RAND_MAX)),
+										1};
 	  lights[i].radius = (static_cast<float> (rand()) / static_cast<float> (RAND_MAX));
   }
 
