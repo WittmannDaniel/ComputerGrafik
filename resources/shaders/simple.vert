@@ -50,12 +50,12 @@ void main(void)
 
 	 // ------- displacement mapping ------------ //
 
-	vec4 dv = texture(BumpTex, in_Texcoord);
-    float df = (0.30 * dv.x , 0.59 * dv.y , 0.11 * dv.z);
+	// vec4 dv = texture(BumpTex, in_Texcoord);
+    // float df = (0.30 * dv.x , 0.59 * dv.y , 0.11 * dv.z);
 
-	vec4 newVertexPosition = vec4(gl_Normal * df *100.0 , 0) + gl_Vertex 
+	//vec4 newVertexPosition = vec4(gl_Normal * df *100.0 , 0) + gl_Vertex 
 
-	gl_Position = (ProjectionMatrix  * ViewMatrix * ModelMatrix) * newVertexPosition;
+	gl_Position = (ProjectionMatrix  * ViewMatrix * ModelMatrix) * vec4(in_Position, 1.0f);
 	//pass_Normal = (NormalMatrix * vec4(in_Normal, 0.0)).xyz;
 	color_planet = planet_rgb;
 
