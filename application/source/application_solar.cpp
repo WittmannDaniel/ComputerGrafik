@@ -28,6 +28,8 @@ using namespace gl;
 #include <cstdlib>
 #include <string>
 
+#include <time.h>
+
 std::vector<texture_object> texture_objects;
 std::vector<texture_object> bump_textures;
 
@@ -371,6 +373,7 @@ void ApplicationSolar::initializeGeometry() {
   }
 
   //initialization light data vector
+  srand(time(NULL));
 
   for (int i = 0; i < 5; ++i)
   {
@@ -378,11 +381,11 @@ void ApplicationSolar::initializeGeometry() {
 									(static_cast<float> (rand()) / static_cast<float> (RAND_MAX)) ,
 									(static_cast<float> (rand()) / static_cast<float> (RAND_MAX)) ,
 										1 };
-	  lights[i].position = glm::vec4{ (static_cast<float> (rand()) / static_cast<float> (RAND_MAX)),
-									  (static_cast<float> (rand()) / static_cast<float> (RAND_MAX)) ,
-									  (static_cast<float> (rand()) / static_cast<float> (RAND_MAX)),
+	  lights[i].position = glm::vec4{ (static_cast <float>(rand() % 101 - 50)),
+									  (static_cast <float>(rand() % 101 - 50)) ,
+									  (static_cast <float>(rand() % 101 - 50)),
 										1};
-	  lights[i].radius = (static_cast<float> (rand()) / static_cast<float> (RAND_MAX));
+	  lights[i].radius = 5000.0f; // (static_cast<float> (rand()) / static_cast<float> (RAND_MAX));
   }
 
 
