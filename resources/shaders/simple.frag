@@ -38,11 +38,11 @@ void main() {
   vec3 H = normalize(pass_toLight.xyz + pass_toCamera);
   vec4 N = normalize(pass_Normal);
  
-  float ka = 0.3; 
+  float ka = 0.1; 
   float kd = 0.3; 
   float ks = 0.3; 
 
-  vec3 ia = vec3(0.3f, 0.3f, 0.3f);
+  vec3 ia = vec3(0.1f, 0.1f, 0.1f);
   vec3 id = vec3(0.3f, 0.3f, 0.3f);
   vec3 is = vec3(0.3f, 0.3f, 0.3f);
 
@@ -74,5 +74,10 @@ void main() {
 			out_Color -= vec4(vec3(diffuselight *  dot(current_passtolight.rgb, N.xyz) +
 								specularlight * pow(dot(N.xyz,H),reflectance)),1.0f);
 		}
+  }
+  
+  if(Sun)
+  {
+	out_Color = diffuse_color * 1;
   }
 }
