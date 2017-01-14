@@ -59,15 +59,17 @@ void main() {
 
   for(int i = 0; i != lights.length(); ++i)
   {
-	vec4 current_light_pos = lights[i].position;
-	if(length(current_light_pos - pass_position) < lights[i].radius)
+	vec4 current_lightpos = pass_ViewMatrix * lights[i].position;
+	vec3 current_passtolight = normalize(current_lightpos.xyz - pass_worldPosition.xyz);
+
+	if(length(current_lightpos - pass_position) < lights[i].radius)
 		{
-			H = normalize(normalize((current_light_pos * pass_ViewMatrix).xyz - pass_worldPosition.xyz).xyz + pass_toCamera);
+			H = normalize(current_passtolight.xyz + pass_toCamera);
 
 			diffuselight = kd * lights[i].color.xyz + diffuse_color.rgb;
 			specularlight = ks * lights[i].color.xyz;
 			
-			out_Color -= vec4(vec3(diffuselight *  dot(pass_toLight.rgb, N.xyz) +
+			out_Color -= vec4(vec3(diffuselight *  dot(current_passtolight.rgb, N.xyz) +
 								specularlight * pow(dot(N.xyz,H),reflectance)),1.0f);
 		}
   }
