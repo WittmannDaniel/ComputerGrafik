@@ -64,10 +64,10 @@ void main() {
 		{
 			H = normalize(normalize((current_light_pos * pass_ViewMatrix).xyz - pass_worldPosition.xyz).xyz + pass_toCamera);
 
-			vec3 diffuselight = kd * lights[i].color.xyz + diffuse_color.rgb;
-			vec3 specularlight = ks * lights[i].color.xyz;
+			diffuselight = kd * lights[i].color.xyz + diffuse_color.rgb;
+			specularlight = ks * lights[i].color.xyz;
 			
-			out_Color += vec4(vec3(diffuselight *  dot(pass_toLight.rgb, N.xyz) +
+			out_Color -= vec4(vec3(diffuselight *  dot(pass_toLight.rgb, N.xyz) +
 								specularlight * pow(dot(N.xyz,H),reflectance)),1.0f);
 		}
   }
