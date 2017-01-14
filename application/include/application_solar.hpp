@@ -25,7 +25,7 @@ class ApplicationSolar : public Application {
   //handle delta mouse movement input
   void mouseCallback(double pos_x, double pos_y);
 
-  void upload_planet_transforms(planet const& planet, texture_object const& tex_object) const;
+  void upload_planet_transforms(planet const& planet, texture_object const& tex_object, texture_object const& bump_tex) const;
 
   // draw all objects
   void render() const;

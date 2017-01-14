@@ -10,6 +10,7 @@ struct planet {
     bool is_moon;
 	float rgb_color[3];
 	pixel_data texture;
+	pixel_data bump_texture;
     
 
     planet(std::string n, float d, float speed, float s, bool x,float red, float green, float blue):
@@ -22,13 +23,14 @@ struct planet {
 			rgb_color[0] = red; rgb_color[1] = green; rgb_color[2] = blue;
 		}
 
-	planet(std::string n, float d, float speed, float s, bool x, pixel_data tex):
+	planet(std::string n, float d, float speed, float s, bool x, pixel_data tex, pixel_data bump_tex):
 		name{ n },
 		distance{ d },
 		speed{ speed },
 		size{ s },
 		is_moon{ x },
-		texture(tex) 
+		texture(tex), 
+		bump_texture {bump_tex}
 		{
 			rgb_color[0] = 1.0f; rgb_color[1] = 1.0f; rgb_color[2] = 1.0f;
 		}
