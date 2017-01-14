@@ -145,7 +145,8 @@ void ApplicationSolar::render() const {
 
 
 	// for loop over container of planets
-	glUseProgram(m_shaders.at("planet").handle);
+	glUseProgram(m_shaders.at("planet").handle);
+
 
 	std::vector<texture_object>::iterator j = textures.begin();
 	for (std::vector<planet>::iterator i = planets.begin(); i != planets.end(); ++i)
