@@ -308,6 +308,7 @@ void ApplicationSolar::initializeShaderPrograms() {
   m_shaders.at("planet").u_locs["ModelMatrix"] = -1;
   //m_shaders.at("planet").u_locs["lights"] = -1;
   m_shaders.at("planet").u_locs["Sun"] = -1;
+  m_shaders.at("planet").u_locs["BumpTex"] = -1;
   
 
   m_shaders.emplace("star", shader_program{m_resource_path + "shaders/stars.vert",

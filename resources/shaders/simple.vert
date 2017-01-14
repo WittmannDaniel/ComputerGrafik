@@ -22,6 +22,8 @@ layout (std140) uniform shader_data{
 };
 
 //Matrix Uniforms as specified with glUniformMatrix4fv
+uniform sampler2D BumpTex;
+
 uniform mat4 ModelMatrix;
 uniform mat4 NormalMatrix;
 
@@ -46,7 +48,14 @@ void main(void)
 	mat4 ProjectionMatrix = projection_matrix_struct;
 	vec4 light_position = ViewMatrix * vec4(0.0f,0.0f,0.0f,1.0f);
 
-	gl_Position = (ProjectionMatrix  * ViewMatrix * ModelMatrix) * vec4(in_Position, 1.0f);
+	 // ------- displacement mapping ------------ //
+
+	vec4 dv = texture(BumpTex, in_Texcoord);
+    float df = (0.30 * dv.x , 0.59 * dv.y , 0.11 * dv.z);
+
+	vec4 newVertexPosition = vec4(gl_Normal * df *100.0 , 0) + gl_Vertex 
+
+	gl_Position = (ProjectionMatrix  * ViewMatrix * ModelMatrix) * newVertexPosition;
 	//pass_Normal = (NormalMatrix * vec4(in_Normal, 0.0)).xyz;
 	color_planet = planet_rgb;
 
@@ -65,4 +74,6 @@ void main(void)
    pass_position = vec4(in_Position, 1);
    pass_ViewMatrix = ViewMatrix;
    pass_worldPosition = worldPosition;
+
+  
 }
