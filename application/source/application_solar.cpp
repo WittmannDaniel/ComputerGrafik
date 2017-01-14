@@ -63,7 +63,7 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
 {
 	// initialize all planets
 	planet skybox{ "skybox"    , 0.0f, 0.0f, 50.0f, false, texture_loader::file(m_resource_path + "textures/skybox.png"), texture_loader::file(m_resource_path + "textures/bump.png") };
-	planet sun{ "sun"    , 0.0f, 0.0f, 0.7f, false, texture_loader::file(m_resource_path + "textures/sunmap.png"), texture_loader::file(m_resource_path + "textures/bump.png") };
+	planet sun{ "sun"    , 0.0f, 0.0f, 0.7f, true, texture_loader::file(m_resource_path + "textures/sunmap.png"), texture_loader::file(m_resource_path + "textures/bump.png") };
 	planet mercury{ "mercury", 1.0f , 365 / 88.0f, 0.05f, false, texture_loader::file(m_resource_path + "textures/mercurymap.png"), texture_loader::file(m_resource_path + "textures/bump.png") };
 	planet venus{ "venus"  , 2.0f , 365 / 225.0f, 0.2f, false, texture_loader::file(m_resource_path + "textures/venusmap.png"), texture_loader::file(m_resource_path + "textures/bump.png") };
 	planet earth{ "earth"  , 3.0f , 1.0f , 0.15f, false, texture_loader::file(m_resource_path + "textures/earthmap.png"), texture_loader::file(m_resource_path + "textures/earthbump1k.png") };
@@ -72,7 +72,7 @@ ApplicationSolar::ApplicationSolar(std::string const& resource_path)
 	planet saturn{ "saturn" , 5.0f , 365 / 1751.0f, 0.2f, false, texture_loader::file(m_resource_path + "textures/saturnmap.png"), texture_loader::file(m_resource_path + "textures/bump.png") };
 	planet uranus{ "uranus" , 6.0f , 365 / 30664.0f , 0.2f, false, texture_loader::file(m_resource_path + "textures/uranusmap.png"), texture_loader::file(m_resource_path + "textures/bump.png") };
 	planet neptune{ "neptune", 6.5f , 365 / 60148.0f , 0.15f, false, texture_loader::file(m_resource_path + "textures/neptunemap.png"), texture_loader::file(m_resource_path + "textures/bump.png") };
-	planet moon{ "moon"   , 0.3f , 1.0f ,0.05f, true, texture_loader::file(m_resource_path + "textures/moonmap.png"), texture_loader::file(m_resource_path + "textures/moonbump1k.png") };
+	planet moon{ "moon"   , 0.3f , 1.0f ,0.05f, false, texture_loader::file(m_resource_path + "textures/moonmap.png"), texture_loader::file(m_resource_path + "textures/moonbump1k.png") };
 
 	planets = { sun, mercury, venus, earth, mars, jupiter, saturn, uranus, neptune, moon, skybox };
 
@@ -126,6 +126,8 @@ void ApplicationSolar::upload_planet_transforms(planet const& planet, texture_ob
 	glm::fmat4 normal_matrix = glm::inverseTranspose(glm::inverse(m_view_transform) * model_matrix);
 	glUniformMatrix4fv(m_shaders.at("planet").u_locs.at("NormalMatrix"),
 		1, GL_FALSE, glm::value_ptr(normal_matrix));
+
+	glUniform1i(m_shaders.at("planet").u_locs.at("Sun"), planet.is_moon);
 
 	//upload planet uniform
 	glUniform3f(glGetUniformLocation(m_shaders.at("planet").handle, "planet_rgb"),
@@ -305,6 +307,7 @@ void ApplicationSolar::initializeShaderPrograms() {
   m_shaders.at("planet").u_locs["NormalMatrix"] = -1;
   m_shaders.at("planet").u_locs["ModelMatrix"] = -1;
   //m_shaders.at("planet").u_locs["lights"] = -1;
+  m_shaders.at("planet").u_locs["Sun"] = -1;
   
 
   m_shaders.emplace("star", shader_program{m_resource_path + "shaders/stars.vert",

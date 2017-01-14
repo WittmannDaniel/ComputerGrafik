@@ -12,6 +12,8 @@ in vec4 pass_position;
 in mat4 pass_ViewMatrix;
 in vec3 pass_worldPosition;
 
+uniform bool Sun;
+
 struct light_data {
   float radius;
   vec4 color;
