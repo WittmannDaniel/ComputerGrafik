@@ -50,16 +50,17 @@ void main(void)
 
 	 // ------- displacement mapping ------------ //
 
-	// vec4 dv = texture(BumpTex, in_Texcoord);
-    // float df = (0.30 * dv.x , 0.59 * dv.y , 0.11 * dv.z);
+	pass_Texcoord = in_Texcoord;
+	vec4 dv = texture(BumpTex, in_Texcoord);
+    float df = (0.30 * dv.x , 0.59 * dv.y , 0.11 * dv.z);
 
-	//vec4 newVertexPosition = vec4(gl_Normal * df *100.0 , 0) + gl_Vertex 
+	vec4 newVertexPosition = vec4(in_Normal * df *100.0 , 0) + vec4(in_Position, 1.0f);
 
-	gl_Position = (ProjectionMatrix  * ViewMatrix * ModelMatrix) * vec4(in_Position, 1.0f);
+	gl_Position = (ProjectionMatrix  * ViewMatrix * ModelMatrix) * newVertexPosition;
 	//pass_Normal = (NormalMatrix * vec4(in_Normal, 0.0)).xyz;
 	color_planet = planet_rgb;
 
-	vec3 worldPosition = vec3((ViewMatrix * ModelMatrix) * vec4(in_Position, 1.0f));
+	vec4 worldPosition = vec4(ViewMatrix * ModelMatrix) * vec4(in_Position, 1.0f);
 	
    // normal in world space
    pass_Normal	= (NormalMatrix * vec4 (in_Normal, 0.0f));
@@ -70,10 +71,9 @@ void main(void)
    // direction to camera
    pass_toCamera	= normalize( - worldPosition.xyz);
 
-   pass_Texcoord = in_Texcoord;
-   pass_position = vec4(in_Position, 1);
+   pass_position =  newVertexPosition;
    pass_ViewMatrix = ViewMatrix;
-   pass_worldPosition = worldPosition;
+   pass_worldPosition = worldPosition.xyz;
 
   
 }
