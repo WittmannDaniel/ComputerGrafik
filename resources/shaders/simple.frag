@@ -71,7 +71,7 @@ void main() {
 			diffuselight = kd * lights[i].color.xyz + diffuse_color.rgb;
 			specularlight = ks * lights[i].color.xyz;
 			
-			out_Color -= vec4(vec3(diffuselight *  dot(current_passtolight.rgb, N.xyz) +
+			out_Color += vec4(vec3(diffuselight *  dot(current_passtolight.rgb, N.xyz) +
 								specularlight * pow(dot(N.xyz,H),reflectance)),1.0f);
 		}
   }
